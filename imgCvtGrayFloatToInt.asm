@@ -1,66 +1,96 @@
 ; imgCvtGrayFloatToInt.asm
+; Converts grayscale image from float (0.0-1.0) to uint8 (0-255)
+; Uses scalar SIMD instructions with truncation
+
 section .data
+    align 16
+    scale dd 255.0
 
 section .text
-bits 64
-default rel
+    bits 64
+    default rel
 
-global imgCvtGrayFloatToInt
+    global imgCvtGrayFloatToInt
 
-; void imgCvtGrayFloatToInt(float* input, unsigned char* output, int height, int width)
-; RCX = input pointer
-; RDX = output pointer
-; R8  = height
-; R9  = width
+; void imgCvtGrayFloatToInt(float* floatImage, unsigned char* intImage, int height, int width)
+; Parameters (Windows x64 calling convention):
+;   RCX: floatImage pointer (1st parameter)
+;   RDX: intImage pointer (2nd parameter)
+;   R8:  height (3rd parameter)
+;   R9:  width (4th parameter)
+; Return: void
 
 imgCvtGrayFloatToInt:
+    ; Prologue - save non-volatile registers
     push rbp
     mov rbp, rsp
-    
-    ; Save non-volatile registers
     push rbx
     push r12
     push r13
+    push r14
+    push r15
+    
+    ; Save parameters in non-volatile registers
+    mov r12, rcx        ; floatImage pointer
+    mov r13, rdx        ; intImage pointer
+    mov r14, r8         ; height
+    mov r15, r9         ; width
     
     ; Calculate total pixels = height * width
-    mov rax, r8          ; height
-    imul rax, r9         ; height * width
-    mov r10, rax         ; r10 = total pixels
+    mov rax, r14        ; height
+    imul rax, r15       ; height * width
+    mov rcx, rax        ; total pixels in RCX
     
-    ; Load constant 255.0 into XMM0
-    movss xmm0, dword [float255]  ; Load 255.0
+    ; Check if we have any pixels
+    cmp rcx, 0
+    je .done
     
-    ; Initialize loop counter
-    xor r11, r11         ; i = 0
+    ; Load constant (255.0) into XMM2
+    movss xmm2, [scale]     ; xmm2 = 255.0
     
-convert_loop:
-    cmp r11, r10
-    je done
+    ; Initialize counter
+    xor rbx, rbx        ; rbx = 0 (pixel counter)
     
-    ; Load float pixel from input (RCX + i*4)
-    movss xmm1, dword [rcx + r11*4]  ; load float
+.loop:
+    ; Load float pixel value from memory into XMM0
+    movss xmm0, [r12 + rbx*4]   ; xmm0 = floatImage[rbx]
     
-    ; Convert: int = float * 255.0
-    mulss xmm1, xmm0                 ; xmm1 = float * 255.0
+    ; Multiply by 255.0
+    mulss xmm0, xmm2            ; xmm0 = floatImage[rbx] * 255.0
     
-    ; Convert float to integer (truncate)
-    cvttss2si eax, xmm1              ; eax = (int)(float * 255.0)
+    ; Round toward zero (truncate) using roundss
+    ; Immediate operand 3 = round toward zero
+    roundss xmm0, xmm0, 3
     
-    ; Store result to output (RDX + i)
-    mov byte [rdx + r11], al         ; store uint8
+    ; Convert to integer
+    cvtss2si rax, xmm0          ; rax = (int)(floatImage[rbx] * 255.0)
     
-    inc r11
-    jmp convert_loop
+    ; Clamp to [0, 255]
+    cmp rax, 255
+    jle .check_min
+    mov rax, 255                ; clamp to 255
+    jmp .store
     
-done:
+.check_min:
+    cmp rax, 0
+    jge .store
+    xor rax, rax                ; clamp to 0
+    
+.store:
+    ; Store the byte (unsigned char)
+    mov byte [r13 + rbx], al    ; intImage[rbx] = (unsigned char)rax
+    
+    ; Increment counter
+    inc rbx
+    cmp rbx, rcx
+    jl .loop
+    
+.done:
+    ; Epilogue - restore non-volatile registers
+    pop r15
+    pop r14
     pop r13
     pop r12
     pop rbx
-    mov rsp, rbp
     pop rbp
     ret
-
-section .data
-align 4
-float255:
-    dd 255.0
