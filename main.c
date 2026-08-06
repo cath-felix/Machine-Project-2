@@ -60,6 +60,40 @@ void printIntImage(unsigned char* image, int height, int width) {
     }
 }
 
+//to simulate the tests (provides random float image and providees run time)
+void generateRandomFloatImage(float* image, int height, int width) {
+    int total = height * width;
+    for (int i = 0; i < total; i++) {
+        image[i] = (float)rand() / (float)RAND_MAX;
+    }
+}
+
+void runTimingTest(int height, int width, int numRuns) {
+    int totalPixels = height * width;
+    float* floatImage = (float*)malloc(totalPixels * sizeof(float));
+    unsigned char* intImage = (unsigned char*)malloc(totalPixels * sizeof(unsigned char));
+
+    generateRandomFloatImage(floatImage, height, width);
+
+    LARGE_INTEGER frequency, start, end;
+    QueryPerformanceFrequency(&frequency);
+
+    double totalTime = 0.0;
+    for (int run = 0; run < numRuns; run++) {
+        QueryPerformanceCounter(&start);
+        imgCvtGrayFloatToInt(floatImage, intImage, height, width);
+        QueryPerformanceCounter(&end);
+        totalTime += (double)(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+    }
+
+    printf("Size %dx%d: average time = %.6f sec over %d runs\n",
+        height, width, totalTime / numRuns, numRuns);
+
+    free(floatImage);
+    free(intImage);
+}
+//end of simulation code
+
 int main() {
     int height, width;
 
@@ -106,6 +140,13 @@ int main() {
     // Verify correctness
     printf("\nVerification:\n");
     verifyConversion(floatImage, intImage, height, width);
+    
+    // Performace Check
+    printf("\nPerformance Timing:\n");
+    srand((unsigned int)time(NULL));
+    runTimingTest(10, 10, 30);
+    runTimingTest(100, 100, 30);
+    runTimingTest(1000, 1000, 30);
 
     // Free memory
     free(floatImage);
