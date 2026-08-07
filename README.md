@@ -14,7 +14,9 @@ gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
 `imgCvtGrayFloatToInt(float* floatImage, unsigned char* intImage, int height, int width)` uses the Windows x64 calling convention (RCX/RDX/R8/R9 for the four parameters). For each pixel: load the float with `MOVSS`, scale by 255 with `MULSS`, truncate toward zero with `ROUNDSS`, convert to integer with `CVTSS2SI`, clamp to [0, 255], and store as a byte.
 
 ## Sample Outputs
-* Note: Verification is to confirm that the output in SASM matches the C output. Performance Timing is to analyze the performance for 30 runs in different dimensions. *
+Note:
+* Verification is to confirm that the output in SASM matches the C output
+* Performance Timing is to analyze the performance for 30 runs in different dimensions.
   
 ### Sample Output 1 - Single Pixel
 <img width="560" height="320" alt="4ca42fd2-3a5c-4ca2-8af1-d439f3269d53" src="https://github.com/user-attachments/assets/9d47cc6b-efc1-4b17-90ef-ed1a22402dd3" />
