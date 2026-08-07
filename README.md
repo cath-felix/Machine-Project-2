@@ -3,11 +3,13 @@ Converts a grayscale image's pixel representation from single-precision float (0
 
 ## Files
 - `main.c` — reads input, allocates memory, calls the assembly function, prints output, runs correctness check and timing tests
-- `imgCvtGrayFloatToInt.asm` — the conversion function itself (scalar SIMD: `MOVSS`, `MULSS`, `ROUNDSS`, `CVTSS2SI`)
+- `imgCvtGrayFloatToInt.asm` — the conversion function itself 
 
 ## Build & Run
 nasm -f win64 imgCvtGrayFloatToInt.asm -o imgCvtGrayFloatToInt.obj
+
 gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
+
 ./main.exe
 
 ## How It Works
@@ -16,7 +18,7 @@ gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
 ## Sample Outputs
 Note:
 * Verification is to confirm that the output in SASM matches the C output
-* Performance Timing is to analyze the performance for 30 runs in different dimensions.
+* Performance Timing is to analyze the performance for 30 runs in different dimensions
   
 ### Sample Output 1 - Single Pixel
 <img width="560" height="320" alt="4ca42fd2-3a5c-4ca2-8af1-d439f3269d53" src="https://github.com/user-attachments/assets/9d47cc6b-efc1-4b17-90ef-ed1a22402dd3" />
