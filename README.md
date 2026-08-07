@@ -35,5 +35,6 @@ gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
 ## Sample Output 7 - 2x2 Grid: Horizontal Input "Spaces" (Similar to Demo Video)
 <img width="550" height="354" alt="aea28c7f-04de-443f-abfe-1cb9753cfd57" src="https://github.com/user-attachments/assets/690a9e13-73ae-463c-acdb-e9ba2d65754c" />
 
+**Note: Verification is to confirm that the output in SASM matches the C output. Performance Timing is to analyze the performance for 30 runs in different dimensions. 
 ## Demo Video
 https://drive.google.com/file/d/12VVaNrkrDItgvctNPJd3gLRkl5MpZfmN/view?usp=sharing
