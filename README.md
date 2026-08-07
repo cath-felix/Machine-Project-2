@@ -1,6 +1,7 @@
 # imgCvtGrayFloatToInt
 Converts a grayscale image's pixel representation from single-precision float (0.0–1.0) to unsigned 8-bit integer (0–255), implemented in C and x86-64 assembly using scalar SIMD instructions.
 
+Project By: Catherine Felix, Justine Major
 ## Files
 - `main.c` — reads input, allocates memory, calls the assembly function, prints output, runs correctness check and timing tests
 - `imgCvtGrayFloatToInt.asm` — the conversion function itself 
