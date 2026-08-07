@@ -1,20 +1,16 @@
-<img width="550" height="406" alt="c197153e-5cb7-4bd8-ad23-fcee76cf0d43" src="https://github.com/user-attachments/assets/1c73867b-93e4-400a-bdf4-10975eea6365" /><img width="550" height="406" alt="c197153e-5cb7-4bd8-ad23-fcee76cf0d43" src="https://github.com/user-attachments/assets/5ce0b612-7f0c-4900-8ae1-ae857f444152" /># imgCvtGrayFloatToInt
-
+# imgCvtGrayFloatToInt
 Converts a grayscale image's pixel representation from single-precision float (0.0–1.0) to unsigned 8-bit integer (0–255), implemented in C and x86-64 assembly using scalar SIMD instructions.
 
 ## Files
-
 - `main.c` — reads input, allocates memory, calls the assembly function, prints output, runs correctness check and timing tests
 - `imgCvtGrayFloatToInt.asm` — the conversion function itself (scalar SIMD: `MOVSS`, `MULSS`, `ROUNDSS`, `CVTSS2SI`)
 
 ## Build & Run
-
 nasm -f win64 imgCvtGrayFloatToInt.asm -o imgCvtGrayFloatToInt.obj
 gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
 ./main.exe
 
 ## How It Works
-
 `imgCvtGrayFloatToInt(float* floatImage, unsigned char* intImage, int height, int width)` uses the Windows x64 calling convention (RCX/RDX/R8/R9 for the four parameters). For each pixel: load the float with `MOVSS`, scale by 255 with `MULSS`, truncate toward zero with `ROUNDSS`, convert to integer with `CVTSS2SI`, clamp to [0, 255], and store as a byte.
 
 ## Sample Output 1 - Single Pixel
@@ -38,10 +34,6 @@ gcc main.c imgCvtGrayFloatToInt.obj -o main.exe
 
 ## Sample Output 7 - 2x2 Grid: Horizontal Input "Spaces" (Similar to Demo Video)
 <img width="550" height="354" alt="aea28c7f-04de-443f-abfe-1cb9753cfd57" src="https://github.com/user-attachments/assets/690a9e13-73ae-463c-acdb-e9ba2d65754c" />
-
-
-
-## Performance Analysis
 
 ## Demo Video
 https://drive.google.com/file/d/12VVaNrkrDItgvctNPJd3gLRkl5MpZfmN/view?usp=sharing
